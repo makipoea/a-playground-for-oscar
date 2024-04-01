@@ -12,7 +12,6 @@ def slice_polygon(L):
         if u[0]>xmax :
             xmax = u[0]
             yfin= u[1]
-    print ((xmin,ydeb),(xmax,yfin))
 
     c1=[]
     c2=[]
@@ -58,9 +57,7 @@ def fillpolygon(L,nbperiod):
     
     L1=sort_with_x(a)
     L2=sort_with_x(b)
-    print(L1,L2)
     Lx=np.linspace(L1[0][0],L1[-1][0],(L1[-1][0]-L1[0][0])*nbperiod*10)
-    print(Lx)
     f1= polygonfunc(L1,Lx)
     f2= polygonfunc(L2,Lx)
     fill=[0 for i in range(len(Lx))]
@@ -77,9 +74,10 @@ K=[(0,0),(1,1),(2,1),(3,0),(1,-1),(2,-1)]
 (Li,f) = fillpolygon(K,10)
 ax.plot(Li,f)
 L=slice_polygon([(0,0),(1,1),(2,1),(3,0),(1,-1),(2,-1)])
-print(L)
+
 a=sort_with_x(L[0])
 b=sort_with_x(L[1])
+print(a,b)
 
 Lx=np.linspace(0,3,100)
 
