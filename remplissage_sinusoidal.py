@@ -1,23 +1,27 @@
 import matplotlib.pyplot as plt
 import numpy as np
 
-#Coupe le polygone sur une diagonale(xmin a xmax)
-def slice_polygon(L):
-    xmin,xmax = L[0][0],L[0][0]
-    ydeb, yfin = L[0][1],L[0][1]
-    for u in L:
-        if u[0]< xmin :
-            xmin = u[0]
-            ydeb= u[1]
-        if u[0]>xmax :
-            xmax = u[0]
-            yfin= u[1]
+
+def slice_polygon(L_point):
+    """
+    L_point : point = (x, y)
+    Coupe le polygone sur une diagonale(xmin a xmax)
+    """
+    xmin,xmax = L_point[0][0],L_point[0][0]
+    ydeb, yfin = L_point[0][1],L_point[0][1]
+    for point in L_point:
+        if point[0]< xmin :
+            xmin = point[0]
+            ydeb= point[1]
+        if point[0]>xmax :
+            xmax = point[0]
+            yfin= point[1]
 
     c1=[]
     c2=[]
     
-    for u in L:
-        x,y= u[0],u[1]
+    for point in L_point:
+        (x,y) = point
         t = (xmax-x)/(xmax-xmin)
         if y <= ydeb*t + (1-t)*yfin :
             c2.append((x,y))
@@ -29,30 +33,39 @@ def slice_polygon(L):
 
     return (c1,c2)
 
-#Trie une liste de couple par la valeur de chaque premier element de chaque couple
-def sort_with_x(L):
-    G=[L[0]]
-    for i in range(1,len(L)):
+
+def sort_with_x(L_point):
+    '''Trie une liste de couple par la valeur de chaque premier element de chaque couple'''
+    
+    L_trier = [L_point[0]]
+    for i in range(1,len(L_point)):
         j=0
-        while j<len(G) and L[i][0]>=G[j][0]:
+        while j<len(L_trier) and L_point[i][0]>=L_trier[j][0]:
             j+=1
-        G=G[0:j]+[L[i]]+G[j::]
-    return G
+        L_trier=L_trier[0:j]+[L_point[i]]+L_trier[j::]
+    return L_trier
 
-#A partir d'une liste de points d'abscisses (X1<X2<..<Xn) définie la fonction qui a x renvoie son ordonnée sur la ligne brisée[(x1,y1)...(xn,yn)]
-def polygonfunc(Points,abscisse):
-    ordonees=[]
-    for x in abscisse :
+# je sais que c'est moins styler et pedagogique mais tu peux faire : sorted(L_points, key=lambda point: point[0])
+# en gros lambda point: point[0] est une fonction (qui renvoie x) et qu'il vas appliquer a chaque element de la liste et 
+# au lieu de trier la liste sur ses elements il trie la liste sur les outputs
+
+def polygonfunc(L_point,L_abscisse):
+    
+    """A partir d'une liste de points d'abscisses (X1<X2<..<Xn) définie la fonction qui a x 
+    renvoie son ordonnée sur la ligne brisée[(x1,y1)...(xn,yn)]"""
+    L_ordonees=[]
+    for x in L_abscisse :
         
-        for i in range(len(Points)-1):
-            if x>= Points[i][0] and x<=Points[i+1][0] :
-                t= (Points[i+1][0]-x)/(Points[i+1][0]-Points[i][0])
-                y = Points[i][1]*t + (1-t)*Points[i+1][1]
-        ordonees.append(y)
-    return ordonees
+        for i in range(len(L_point)-1):
+            if x>= L_point[i][0] and x<=L_point[i+1][0] :
+                t= (L_point[i+1][0]-x)/(L_point[i+1][0]-L_point[i][0])
+                y = L_point[i][1]*t + (1-t)*L_point[i+1][1]
+        L_ordonees.append(y)
+    return L_ordonees
 
-#A partir d'une liste de points définissant un polygone convexe, renvoie le remplissage associé (la fonction fill)
+
 def fillpolygon(L,nbperiod):
+    """A partir d'une liste de points définissant un polygone convexe, renvoie le remplissage associé (la fonction fill)"""
     (a,b) = slice_polygon(L)
     
     L1=sort_with_x(a)
@@ -67,24 +80,23 @@ def fillpolygon(L,nbperiod):
         fill[x]=0.5*(f1[x]-f2[x])*np.sin(Lx[x]*pulsation)+(f1[x]+f2[x])*0.5
     return Lx,fill
 
-#un exemple avec un hexagone avec 10 périodes de sinusoides
-fig, ax = plt.subplots()
-K=[(0,0),(1,1),(2,1),(3,0),(1,-1),(2,-1)]
+if __name__ == "__main__":
+    #un exemple avec un hexagone avec 10 périodes de sinusoides
+    fig, ax = plt.subplots()
+    K=[(0,0),(1,1),(2,1),(3,0),(1,-1),(2,-1)]
 
-(Li,f) = fillpolygon(K,10)
-ax.plot(Li,f)
-L=slice_polygon([(0,0),(1,1),(2,1),(3,0),(1,-1),(2,-1)])
+    (Li,f) = fillpolygon(K,10)
+    ax.plot(Li,f)
+    L=slice_polygon([(0,0),(1,1),(2,1),(3,0),(1,-1),(2,-1)])
 
-a=sort_with_x(L[0])
-b=sort_with_x(L[1])
-print(a,b)
+    a=sort_with_x(L[0])
+    b=sort_with_x(L[1])
+    print(a,b)
 
-Lx=np.linspace(0,3,100)
+    Lx=np.linspace(0,3,100)
 
-ax.plot(Lx, polygonfunc(a,Lx))
-ax.plot(Lx, polygonfunc(b,Lx))
-
-
+    ax.plot(Lx, polygonfunc(a,Lx))
+    ax.plot(Lx, polygonfunc(b,Lx))
 
 
-plt.show()
+    plt.show()
