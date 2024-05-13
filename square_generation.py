@@ -46,7 +46,7 @@ def ratio(polar_point,square):
     r,theta=polar_point[0],polar_point[1]
     lenght=square[1][0]-square[0][0]
     if -np.pi*0.25<theta<np.pi*0.25 or np.pi*0.75<theta<np.pi*1.25:
-        d_to_square= length/np.cos(theta)
+        d_to_square= lenght/np.cos(theta)
     else:
         d_to_square=lenght/np.sin(theta)
     return (r/d_to_square)
