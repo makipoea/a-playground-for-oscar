@@ -114,6 +114,7 @@ im=image(L,10)
 grille= grid(carré,10)
 L_polar= polar_cordonates(L,carré)
 fig,ax = plt.subplot_mosaic("AB",per_subplot_kw={"A":{"projection":"polar"}})
+<<<<<<< HEAD
 ax["B"].plot([p[0] for p in L], [p[1] for p in L],marker='o',linestyle='') #Avant la transformation
 ax["B"].plot([p[0] for p in grille], [p[1] for p in grille],marker='*',linestyle='')
 Lp=polar_cordonates(L,carré)
@@ -121,3 +122,10 @@ ax["A"].plot([p[1] for p in im],[p[0] for p in im],marker='*',linestyle='') #Apr
 ax["A"].plot([p[1] for p in L_polar],[p[0] for p in L_polar],marker='o',linestyle='')
 plt.show()
 
+=======
+ax["B"].plot([p[0] for p in L], [p[1] for p in L],marker='*',linestyle='')
+ax["B"].plot([p[0] for p in square], [p[1] for p in square],marker='o',linestyle='')
+Lp=polar_cordonates(L,square)
+ax["A"].plot([p[1] for p in Lp],[p[0] for p in Lp],marker='*',linestyle='')
+plt.show()
+>>>>>>> 082d655730374ba7f8b16b9551e118e6fdfe6bbe
