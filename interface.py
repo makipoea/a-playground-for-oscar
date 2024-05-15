@@ -19,14 +19,16 @@ class Frame_display_infill(ctk.CTkFrame):
         self.action_to_performe_during_refreshing = []
 
 
-    def draw_list_of_point(self, l_point, close=False, color_line="grey", color_point="black"):
+    def draw_list_of_point(self, l_point, close=False, color_line="grey", color_point="black", draw_point=True, draw_line=True):
         for i, point in enumerate(l_point):
             if i == 0:
                 last_point = point
-            else: 
-                self.board_canvas.create_line(last_point[0], last_point[1], point[0], point[1], fill=color_line, width=1)
+            else:
+                if draw_line: 
+                    self.board_canvas.create_line(last_point[0], last_point[1], point[0], point[1], fill=color_line, width=1)
                 last_point = point
-            self.board_canvas.create_oval(point[0]-2, point[1]-2, point[0]+2, point[1]+2, fill=color_point)
+            if draw_point:
+                self.board_canvas.create_oval(point[0]-2, point[1]-2, point[0]+2, point[1]+2, fill=color_point)
         if close and i>=2:
             self.board_canvas.create_line(last_point[0], last_point[1], l_point[0][0], l_point[0][1], fill=color_line, width=1)
 
@@ -58,17 +60,29 @@ class teste_interpolation(ctk.CTkFrame):
         self.display_square_chekebox = ctk.CTkCheckBox(self, text="square", command=self.compute_square, variable=self.display_square_bool, onvalue=1, offvalue=0)
         self.display_square_chekebox.grid(row=1, column=0, pady=2)
 
-        self.display_interpolate_line_chekebox = ctk.CTkCheckBox(self, "lerp line", command=self.compute_interpolation, variable=self.display_interpolate_bool, onvalue=1, offvalue=0)
+        self.display_interpolate_line_chekebox = ctk.CTkCheckBox(self, text="lerp line", command=self.compute_interpolation, variable=self.display_interpolate_bool, onvalue=1, offvalue=0)
         self.display_interpolate_line_chekebox.grid(row=2, column=0, pady=2)
 
     def compute_interpolation(self):
-        if len(self.extreme_point_of_line) == 2:
-            l_x = np.linspace(self.extreme_point_of_line[0][0], self.extreme_point_of_line[1][0], self.nb_point)
-            l_y = np.linspace(self.extreme_point_of_line[0][1], self.extreme_point_of_line[1][1], self.nb_point)
-            l_point = np.column_stack((l_x, l_y))
+        self.compute_square()
+        if len(self.extreme_point_of_line) == 2 and self.master.option_menue["polygone"].polygone_is_close:
+            self.interpolate_point_line = oscar.draw_the_curve(self.master.option_menue["polygone"].polygone_point,self.extreme_point_of_line, 1000)
+            self.interpolate_point_line = oscar.cartesian_cordonates(self.interpolate_point_line,self.interpolation_square)
 
         else:
-            logging.warning("impossible de calculer l'interpolation : la ligne ne semble pas complete")
+            logging.warning("impossible de calculer l'interpolation : la ligne ou le polygone ne semble pas complets")
+
+        if self.display_interpolate_bool.get():
+            self.master.master.display_frame.action_to_performe_during_refreshing.append(self.display_interpolation)
+        
+        elif self.display_interpolation in self.master.master.display_frame.action_to_performe_during_refreshing:
+            self.master.master.display_frame.action_to_performe_during_refreshing.remove(self.display_interpolation)
+ 
+
+        self.master.master.display_frame.refresh_canvas(clear=True)
+
+    def display_interpolation(self):
+        self.master.master.display_frame.draw_list_of_point(self.interpolate_point_line, close=False, draw_point=False)
 
     def compute_square(self):
         if self.master.option_menue["polygone"].polygone_is_close:
@@ -91,9 +105,11 @@ class teste_interpolation(ctk.CTkFrame):
         self.master.master.display_frame.board_canvas.bind("<Button-1>", self.add_extreme_point)
 
     def add_extreme_point(self, event):
+        if len(self.extreme_point_of_line) == 2:
+            self.extreme_point_of_line = []
         self.extreme_point_of_line.append([event.x, event.y])
         self.master.master.display_frame.refresh_canvas()
-        if len(self.extreme_point_of_line) >= 2:
+        if len(self.extreme_point_of_line) == 2:
             self.master.master.display_frame.board_canvas.unbind("<Button-1>")
 
     def draw_straight_line(self):
