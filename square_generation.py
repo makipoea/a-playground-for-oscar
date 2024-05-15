@@ -1,4 +1,3 @@
-import matplotlib.pyplot as plt
 import numpy as np
 
 #génère un carré englobant tous les points de la figure
@@ -53,15 +52,15 @@ def ratio(polar_point,square):
     return (abs(r/d_to_square))
 
 #pour une liste donnée renvoie le ratio avec le point du carré de meme angle (avec le centre) pour chaque point ainsi que l'angle
-def fonction(L_point,square):
+def ratio_from_l_point(L_point,square):
     L_polar=polar_cordonates(L_point,square)
     
-    fonction=[]
+    l_ratio_angle=[]
     for polar_point in L_polar :
         rat=ratio(polar_point,square)
         theta=polar_point[1]
-        fonction.append((rat,theta))
-    return fonction
+        l_ratio_angle.append((rat,theta))
+    return l_ratio_angle
 
 #genere une grille avec resolution point par ligne (tu peux faire de la 4K stv)
 def grid(square,resolution):
@@ -77,7 +76,7 @@ def grid(square,resolution):
 def image(L_point,resolution):
     carré= square(L_point)          #Création du carré englobant la figure
     grille= grid(carré,resolution)  #Création de la grille dans ce meme carré
-    func=sorted(fonction(L_point,carré),key= lambda point:point[1]) #Réalisation de la fonction associant le ratio en fonction de l'angle
+    func=sorted(ratio_from_l_point(L_point,carré),key= lambda point:point[1]) #Réalisation de la fonction associant le ratio en fonction de l'angle
     image=[]
     polar_grille=polar_cordonates(grille,carré) #Passage de la grille en coordonées polaire, pour utiliser la fonction
     for point in polar_grille: #On itère sur chaque point
@@ -105,19 +104,22 @@ def image(L_point,resolution):
         image.append((rayon,theta)) 
     return image
         
+if __name__ == "__main__":
+    
+    import matplotlib.pyplot as plt
 
-#un exemple avec un octogone 100% handmade (il marche a peu prés à voir avec plus de points)
-L=[(1,0),(0.707,0.707),(0,1),(-0.707,0.707),(-1,0),(-0.707,-0.707),(0,-1),(0.707,-0.707)]
+    #un exemple avec un octogone 100% handmade (il marche a peu prés à voir avec plus de points)
+    L=[(1,0),(0.707,0.707),(0,1),(-0.707,0.707),(-1,0),(-0.707,-0.707),(0,-1),(0.707,-0.707)]
 
-carré= square(L)
-im=image(L,10)
-grille= grid(carré,10)
-L_polar= polar_cordonates(L,carré)
-fig,ax = plt.subplot_mosaic("AB",per_subplot_kw={"A":{"projection":"polar"}})
+    carré= square(L)
+    im=image(L,10)
+    grille= grid(carré,10)
+    L_polar= polar_cordonates(L,carré)
+    fig,ax = plt.subplot_mosaic("AB",per_subplot_kw={"A":{"projection":"polar"}})
 
-ax["B"].plot([p[0] for p in L], [p[1] for p in L],marker='o',linestyle='') #Avant la transformation
-ax["B"].plot([p[0] for p in grille], [p[1] for p in grille],marker='*',linestyle='')
-Lp=polar_cordonates(L,carré)
-ax["A"].plot([p[1] for p in im],[p[0] for p in im],marker='*',linestyle='') #Aprés la transformation
-ax["A"].plot([p[1] for p in L_polar],[p[0] for p in L_polar],marker='o',linestyle='')
-plt.show()
+    ax["B"].plot([p[0] for p in L], [p[1] for p in L],marker='o',linestyle='') #Avant la transformation
+    ax["B"].plot([p[0] for p in grille], [p[1] for p in grille],marker='*',linestyle='')
+    Lp=polar_cordonates(L,carré)
+    ax["A"].plot([p[1] for p in im],[p[0] for p in im],marker='*',linestyle='') #Aprés la transformation
+    ax["A"].plot([p[1] for p in L_polar],[p[0] for p in L_polar],marker='o',linestyle='')
+    plt.show()
