@@ -3,7 +3,7 @@ import numpy as np
 #crée le reste des points pour faire un polygone, les points etant donnés dans l'ordre !!!
 def draw(L_point,number,close):
     result=[]
-    distances=[0 for i in range(len(L_point))] # [0]*len(L_point)
+    distances=[0]*len(L_point)
     droites=[]
     sum=0
     for i in range(len(L_point)):
@@ -39,10 +39,10 @@ def draw(L_point,number,close):
     
 #génère un carre englobant tous les points de la figure
 def square(L_point):
-    L_trie= sorted(L_point, key=lambda point:point[0])
-    xmin,xmax = L_trie[0][0],L_trie[-1][0]
-    L_trie= sorted(L_point, key=lambda point:point[1])
-    ymin,ymax= L_trie[0][1],L_trie[-1][1]
+    xmin = min(L_point, key=lambda point:point[0])[0]
+    xmax = max(L_point, key=lambda point:point[0])[0]
+    ymin = min(L_point, key=lambda point:point[1])[1]
+    ymax = max(L_point, key=lambda point:point[1])[1]
     lx= xmax-xmin
     ly= ymax-ymin
     if lx>=ly :
@@ -59,8 +59,9 @@ def square(L_point):
 
 #En définissant l'origine au centre du carre passe les points en coordonnées polaires (theta varie de -pi/2 à 3pi/2 )
 def from_cartesian_to_polar(L_point,square):
+    # TO DO : simplify this function  
     center=square[4]
-    L_polar=[(0,0) for i in range(len(L_point))]
+    L_polar=[(0, 0)]*len(L_point)
     for i in range(len(L_point)) :
         if L_point[i][0]==center[0]:
             if L_point[i][1]>center[1]:
@@ -78,6 +79,7 @@ def from_cartesian_to_polar(L_point,square):
             r= ((L_point[i][0]-center[0])**2+(L_point[i][1]-center[1])**2)**0.5
         L_polar[i]=(r,theta)
     return L_polar
+
 
 #Transformation inverse
 def from_polar_to_cartesian(L_point,carre):
@@ -196,16 +198,19 @@ def draw_the_curve(L_point_polygon,L_point_curve,number):
     
     return L_point_drawn
 
+def image_point(L_point_polygon, L):
+    carre = square(L)
+    L_point
 
 if __name__ == "__main__":
     
     import matplotlib.pyplot as plt
 
     #un exemple avec un octogone 100% handmade (il marche a peu prés à voir avec plus de points)
-    #L=[(1,0),(0.707,0.707),(0,1),(-0.707,0.707),(-1,0),(-0.707,-0.707),(0,-1),(0.707,-0.707)]
-    #K=[(-0.25,3**0.5/4),(-0.25,-3**0.5/4),(0.5,0)]
-    L = [[396, 248], [486, 148], [634, 138], [695, 230], [651, 344], [482, 340]]
-    K = [[461, 216], [611, 153]]
+    L=[(1,0),(0.707,0.707),(0,1),(-0.707,0.707),(-1,0),(-0.707,-0.707),(0,-1),(0.707,-0.707)]
+    K=[(-0.25,3**0.5/4),(-0.25,-3**0.5/4),(0.5,0)]
+    #L = [[396, 248], [486, 148], [634, 138], [695, 230], [651, 344], [482, 340]]
+    #K = [[461, 216], [611, 153]]
     resultat=draw_the_curve(L,K,5)
     print(resultat)
     fig,ax=plt.subplot_mosaic("AB",per_subplot_kw={"A":{"projection":"polar"}})

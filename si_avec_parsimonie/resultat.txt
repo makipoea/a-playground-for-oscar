@@ -1,0 +1,44 @@
+Resultat de l'execution de vtk_reader avec le fichier poutre.vtk
+
+Nombre de points : 228
+Nombre de cellules : 79
+Nombre de champs de données associés aux points : 19
+Nom du champ de données 1 : Displacement
+Taille du champ de données : 3 composants
+Nom du champ de données 2 : Displacement Magnitude
+Taille du champ de données : 1 composants
+Nom du champ de données 3 : Tresca Stress
+Taille du champ de données : 1 composants
+Nom du champ de données 4 : Strain xx component
+Taille du champ de données : 1 composants
+Nom du champ de données 5 : Strain xy component
+Taille du champ de données : 1 composants
+Nom du champ de données 6 : Strain xz component
+Taille du champ de données : 1 composants
+Nom du champ de données 7 : Strain yy component
+Taille du champ de données : 1 composants
+Nom du champ de données 8 : Strain yz component
+Taille du champ de données : 1 composants
+Nom du champ de données 9 : Strain zz component
+Taille du champ de données : 1 composants
+Nom du champ de données 10 : Stress xx component
+Taille du champ de données : 1 composants
+Nom du champ de données 11 : Stress xy component
+Taille du champ de données : 1 composants
+Nom du champ de données 12 : Stress xz component
+Taille du champ de données : 1 composants
+Nom du champ de données 13 : Stress yy component
+Taille du champ de données : 1 composants
+Nom du champ de données 14 : Stress yz component
+Taille du champ de données : 1 composants
+Nom du champ de données 15 : Stress zz component
+Taille du champ de données : 1 composants
+Nom du champ de données 16 : Major Principal Stress
+Taille du champ de données : 1 composants
+Nom du champ de données 17 : Intermediate Principal Stress
+Taille du champ de données : 1 composants
+Nom du champ de données 18 : Minor Principal Stress
+Taille du champ de données : 1 composants
+Nom du champ de données 19 : von Mises Stress
+Taille du champ de données : 1 composants
+Nombre de champs de données associés aux cellules : 0
