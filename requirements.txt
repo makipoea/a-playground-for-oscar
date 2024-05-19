@@ -6,3 +6,5 @@ opencv-python
 numpy
 logging
 pyvista 
+tqdm
+sys
