@@ -5,8 +5,65 @@ import numpy as np
 import square_generation as oscar 
 import matplotlib.pyplot as plt 
 from tqdm import tqdm
+import random 
 
 sys.setrecursionlimit(100000000)
+
+def tabu_search(graph, max_iterations):
+    def get_neighbors(node):
+        return graph[node]
+
+    def is_hamiltonian_path(path):
+        return len(path) == len(graph) and len(set(path)) == len(graph)
+
+    def initialize_search():
+        start_node = random.choice(list(graph.keys()))
+        current_node = start_node
+        path = [current_node]
+        visited = {current_node}
+        return start_node, current_node, path, visited
+
+    best_path = None
+
+    for start_iteration in tqdm(range(max_iterations), desc="Tabu Search Progress"):
+        start_node, current_node, path, visited = initialize_search()
+        tabu_list = []
+        tabu_size = len(graph) // 2 
+
+        for _ in range(max_iterations):
+            if is_hamiltonian_path(path):
+                return True, path
+
+            neighbors = get_neighbors(current_node)
+            unvisited_neighbors = [n for n in neighbors if n not in visited and n not in tabu_list]
+
+            if unvisited_neighbors:
+                next_node = random.choice(unvisited_neighbors)
+            else:
+                non_tabu_neighbors = [n for n in neighbors if n not in tabu_list]
+                if non_tabu_neighbors:
+                    next_node = random.choice(non_tabu_neighbors)
+                else:
+                    break
+
+            if next_node not in visited:
+                path.append(next_node)
+                visited.add(next_node)
+                current_node = next_node
+
+                
+                if len(tabu_list) >= tabu_size:
+                    tabu_list.pop(0)
+                tabu_list.append(next_node)
+            else:
+              
+                start_node, current_node, path, visited = initialize_search()
+                tabu_list = []
+
+        if best_path is None or len(path) > len(best_path):
+            best_path = path
+
+    return best_path is not None and is_hamiltonian_path(best_path), best_path or []
 
 def backtrack_rec(g, debug=1):
     """
@@ -152,28 +209,30 @@ def generate_grid(polygone, nb_point):
 if __name__ == "__main__":
 
     polygone = [(1,0),(0.71,0.71),(0,1),(-0.71, 0.71),(-1,0),(-0.71,-0.71),(0,-1),(0.71,-0.71)]
-    l_point, graph, f = generate_grid(polygone, 7)
+    l_point, graph, f = generate_grid(polygone,20)
     
     plt.plot([point[0]for point in polygone], [point[1]for point in polygone]) # affiche la grille
     
     plt.scatter([point[0]for point in l_point], [point[1]for point in l_point], s=1)
 
-    
+    """
     for point in graph.keys():
         for voisin in graph[point]:
             p1 = f(point)
             p2 = f(voisin)
             plt.plot([p1[0], p2[0]], [p1[1], p2[1]])
-
-    plt.show()
+    """
+    #plt.show()
     
     #graph = {1:[2, 4, 5], 2:[1, 4], 3:[7], 4:[1, 2, 6, 7], 5:[1, 6], 6:[4, 5], 7:[3, 4]}
     #print(graph[(0, 52)])
     #a = backtrack_iter(graph, debug=0)
+    #b = tabu_search(graph, 10000000)
+    #print(b)   
     #print(a)
-    
-    chemin = backtrack_iter(graph, debug=1)[1]   
-    print(chemin)
+    #chemin = backtrack_iter(graph, debug=1)[1]   
+    chemin = tabu_search(graph, 1000000)[1]
+    print(len(chemin))
     
     last_point = chemin.pop(0)
     for point in chemin:
@@ -183,4 +242,3 @@ if __name__ == "__main__":
         last_point = point
     
     plt.show()
-    
