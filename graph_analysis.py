@@ -9,7 +9,7 @@ import random
 
 sys.setrecursionlimit(100000000)
 
-def tabu_search(graph, max_iterations):
+def tabu_search(graph, max_iterations, rnd = 0):
     def get_neighbors(node):
         return graph[node]
 
@@ -38,11 +38,17 @@ def tabu_search(graph, max_iterations):
             unvisited_neighbors = [n for n in neighbors if n not in visited and n not in tabu_list]
 
             if unvisited_neighbors:
-                next_node = random.choice(unvisited_neighbors)
+                if rnd:
+                    next_node = random.choice(unvisited_neighbors)
+                else: 
+                    next_node = unvisited_neighbors[0]
             else:
                 non_tabu_neighbors = [n for n in neighbors if n not in tabu_list]
                 if non_tabu_neighbors:
-                    next_node = random.choice(non_tabu_neighbors)
+                    if rnd:
+                        next_node = random.choice(non_tabu_neighbors)
+                    else:
+                        next_node = non_tabu_neighbors[0]
                 else:
                     break
 
@@ -199,16 +205,161 @@ def generate_grid(polygone, nb_point):
             if is_in_polygone([carre[0][0]+i*eps, carre[0][1]+j*eps], polygone):
                 #print("valide")
                 l_point.append([carre[0][0]+i*eps, carre[0][1]+j*eps])
-                graph[(i, j)] = [(i, j-1), (i, j+1), (i-1, j), (i+1, j)]
+                graph[(i, j)] = [(i+1, j), (i-1, j),(i, j+1), (i, j-1)]
    
     for point in list(graph.keys()):
         graph[point] = [voisin for voisin in graph[point] if voisin in graph]
 
     return l_point, graph, lambda point:[carre[0][0]+point[0]*eps, carre[0][1]+point[1]*eps]
 
-if __name__ == "__main__":
 
+def generate_path_via_point(graph, flag_to_visit, debug=1):
+    """
+    backtracking itératif mais en ne passant obligatoirement que sur certain point (vise a remplacer backtrack_iter et backtrack_rec)
+    """
+
+    if debug:
+        progression_bar = tqdm(total=len(flag_to_visit), desc='Longueur du chemin')
+
+    chemin = []
+    visited = []
+    flag_visited = [] # parmis les sommet de flag_to_visite: sommet deja visiter
+    first_sommet_tried = [] # sommet de flag_to_visite n'ayant rien donné
+
+    
+
+    while len(first_sommet_tried) != len(flag_to_visit):
+        
+        if debug:
+            progression_bar.n = len(first_sommet_tried)
+            progression_bar.refresh()
+
+        if len(flag_visited) == len(flag_to_visit):
+            break
+
+        if chemin == []:
+            new_point = False
+            for point in flag_to_visit:
+                if point not in first_sommet_tried:
+                    chemin = [point]
+                    first_sommet_tried.append(point)
+                    flag_visited.append(point)
+                    visited= []
+                    break
+        else:
+            point = chemin[-1]
+            new_point = False
+            for voisin in graph[point]:
+                if (visited == [] or new_point) and voisin not in chemin:
+                    chemin.append(voisin)
+                    if voisin in flag_to_visit:
+                        #print(f"voisina jouter {voisin}")
+                        flag_visited.append(voisin)
+                    visited = []
+                    break
+                elif visited and voisin == visited[-1]:
+                    new_point = True
+            else:
+                visited = [chemin.pop()]
+                if point in flag_to_visit:
+                    #print(f"point retirer {point}")
+                    flag_visited.pop()
+    else:
+        return False, []
+    return True, chemin
+
+def generate_path_via_point_from_first_point(graph, flag_to_visit, first_point,debug=0):
+    """
+    backtracking itératif mais en ne passant obligatoirement que sur certain point (vise a remplacer backtrack_iter et backtrack_rec)
+    """
+
+
+
+    if debug:
+        progression_bar = tqdm(total=len(flag_to_visit), desc='Longueur du chemin')
+
+    chemin = [first_point]
+    visited = []
+    flag_visited = [first_point] # parmis les sommet de flag_to_visite: sommet deja visiter
+
+    while len(flag_visited) != len(flag_to_visit):
+
+        if debug:
+            progression_bar.n = len(flag_visited)
+            progression_bar.refresh()
+
+
+        if chemin == []:
+            return (False,[])
+        else:
+            point = chemin[-1]
+            new_point = False
+            for voisin in graph[point]:
+                if (visited == [] or new_point) and voisin not in chemin:
+                    chemin.append(voisin)
+                    if voisin in flag_to_visit:
+                        #print(f"voisina jouter {voisin}")
+                        flag_visited.append(voisin)
+                    visited = []
+                    break
+                elif visited and voisin == visited[-1]:
+                    new_point = True
+            else:
+                visited = [chemin.pop()]
+                if point in flag_to_visit:
+                    #print(f"point retirer {point}")
+                    flag_visited.pop()
+    else:
+        return True, chemin
+
+if __name__ == "__main__":
+    
     polygone = [(1,0),(0.71,0.71),(0,1),(-0.71, 0.71),(-1,0),(-0.71,-0.71),(0,-1),(0.71,-0.71)]
+    
+    resolution = 15
+    pas = 3
+
+    l_point, graph, f = generate_grid(polygone, resolution)
+
+    for point in graph.keys():
+        random.shuffle(graph[point])
+
+    flag_to_visit = []
+
+    for i in range(0, resolution, pas):
+        for j in range(0, resolution, pas):
+            if (i, j) in graph.keys(): 
+                flag_to_visit.append((i, j))
+    
+    print(graph)
+    #graph = {1:[2, 4, 5], 2:[1, 4], 3:[7], 4:[1, 2, 6, 7], 5:[1, 6], 6:[4, 5], 7:[3, 4]}
+
+    chemin = generate_path_via_point(graph, flag_to_visit)[1]
+
+    print("resultat ", chemin)
+
+    
+    plt.plot([point[0]for point in polygone+[polygone[0]]], [point[1]for point in polygone+[polygone[0]]]) # affiche le polygone
+
+    plt.scatter([point[0]for point in l_point], [point[1]for point in l_point], s=1, color='blue')
+
+    plt.scatter([f(point)[0]for point in flag_to_visit], [f(point)[1]for point in flag_to_visit], s=10, color='red')
+
+    if chemin != []:
+        last_point = chemin[0]
+        for point in chemin:
+            p1 = f(last_point)
+            p2 = f(point)
+            plt.plot([p1[0], p2[0]], [p1[1], p2[1]], lw = 0.5 ,color="red")
+            last_point = point
+
+    plt.show()
+    
+
+
+def main_vraque():
+    polygone = [(1,0),(0.71,0.71),(0,1),(-0.71, 0.71),(-1,0),(-0.71,-0.71),(0,-1),(0.71,-0.71)]
+    
     l_point, graph, f = generate_grid(polygone,20)
     
     plt.plot([point[0]for point in polygone], [point[1]for point in polygone]) # affiche la grille
@@ -231,7 +382,7 @@ if __name__ == "__main__":
     #print(b)   
     #print(a)
     #chemin = backtrack_iter(graph, debug=1)[1]   
-    chemin = tabu_search(graph, 1000000)[1]
+    chemin = tabu_search(graph, 10000000, rnd=1)[1]
     print(len(chemin))
     
     last_point = chemin.pop(0)
