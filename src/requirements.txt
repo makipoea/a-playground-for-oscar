@@ -1,0 +1,8 @@
+requests
+matplotlib>=3.7
+customtkinter
+numpy 
+opencv-python
+numpy
+pyvista 
+tqdm
