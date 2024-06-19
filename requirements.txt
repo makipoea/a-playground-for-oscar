@@ -6,3 +6,4 @@ opencv-python
 numpy
 pyvista 
 tqdm
+scipy
