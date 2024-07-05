@@ -40,7 +40,7 @@ class Frame_display_infill(ctk.CTkFrame):
             action()
             
 
-class teste_interpolation(ctk.CTkFrame):
+class teste_interpolation(ctk.CTkFrame): 
     def __init__(self, master, **kwargs):
         super().__init__(master, **kwargs)
         self.master = master
