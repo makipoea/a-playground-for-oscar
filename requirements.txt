@@ -7,3 +7,14 @@ numpy
 pyvista 
 tqdm
 scipy
+
+Arbre / masse en g  
+3: 4.83
+4: 6.03
+5: 7.26
+6: 9.75
+7: 13.00
+breche 
+37: 7.34
+35: 8.09
+34: 8.24
