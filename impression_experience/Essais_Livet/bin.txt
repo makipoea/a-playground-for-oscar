@@ -1,0 +1,22 @@
+
+"""
+with open('teste.ASC', mode = 'r') as file:
+    for line in list(file)[1::]:
+        #line = line.strip('/n').strip('/t')
+        line = line.replace("\t", ";")
+        print(line)
+
+
+def convert_file(input_file_name):
+    input_file = open(input_file_name, mode='r')
+    
+    output_file = open(input_file_name.split('.')[0]+".csv", mode='w')
+
+    for line in list(input_file):
+        line = line.replace('\t', ";")
+        output_file.write(line)
+
+    input_file.close()
+    output_file.close()
+
+"""
