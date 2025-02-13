@@ -1,0 +1,118 @@
+import os 
+import sys 
+import importlib
+import FreeCAD, FreeCADGui, Part, Draft
+import Fem , FemGui
+import ObjectsFem
+
+work_dir ="/home/makipoea/Documents/prepa/tipe/programme/a-playground-for-oscar/src/create_model_for_simulation" 
+os.chdir(work_dir)
+sys.path.append(work_dir)
+import generate_coutour
+importlib.reload(generate_coutour)
+
+from generate_coutour import compute_contour
+
+################################################################################
+
+										#CREATION DU MODELE 3D# 
+
+################################################################################
+
+contours_extrusion = compute_contour("eprouvette_1.png")
+
+
+doc = FreeCAD.newDocument("simulation mécanique")
+
+# Liste pour stocker les formes des contours
+wires = []
+for i, contour in enumerate(contours_extrusion):
+    points = [FreeCAD.Vector(p[0], p[1], 0) for p in contour]
+    
+    if points[0] != points[-1]:  # S'assurer que le contour est fermé
+        points.append(points[0])
+
+    try:
+        wire = Part.Wire(Part.makePolygon(points))
+        wires.append(wire)
+    except Exception as e:
+        print(f"Erreur lors de la création du wire {i}: {e}")
+
+FreeCAD.ActiveDocument.recompute()
+
+#  Identifier le contour principal (le plus grand)
+wires.sort(key=lambda w: w.BoundBox.DiagonalLength, reverse=True)
+main_wire = wires[0]  # Plus grand contour = pièce principale
+holes = wires[1:]  # Tous les autres sont des trous
+
+# Construire la face avec les trous
+try:
+    base = Part.Face([main_wire] + holes)  # Fusionner le contour principal avec les trous
+    solid = base.extrude(FreeCAD.Vector(0, 0, 10))  # Extrusion
+
+    final_part = doc.addObject("Part::Feature", "FinalPiece")
+    final_part.Shape = solid
+
+    FreeCAD.ActiveDocument.recompute()
+except Exception as e:
+    print(f"Erreur lors de la création de la face: {e}")
+
+
+################################################################################
+
+										#SIMULATION NUMERIQUE# 
+
+################################################################################
+
+FreeCADGui.activateWorkbench("FemWorkbench")
+
+# Active l'analyse 
+analysis = ObjectsFem.makeAnalysis(FreeCAD.ActiveDocument, 'Analysis')
+FemGui.setActiveAnalysis(analysis)
+
+solver = ObjectsFem.makeSolverCalculixCcxTools(doc)
+analysis.addObject(solver)
+
+#  Définition du matériau (Acier par défaut)
+material = ObjectsFem.makeMaterialSolid(FreeCAD.ActiveDocument, "Material")
+
+material.Material = {
+    'Name': 'Steel-Generic',
+    'Density': '7850 kg/m^3',
+    'YoungsModulus': '210000 MPa',
+    'PoissonRatio': '0.3'
+}
+
+analysis.addObject(material)
+
+FreeCAD.ActiveDocument.recompute()
+
+# ajouter une face fixe 
+
+piece = App.ActiveDocument.getObject('FinalPiece')
+
+constraint_fixed = App.ActiveDocument.addObject("Fem::ConstraintFixed", "ConstraintFixed")
+constraint_fixed.References = [(piece,  'Face14')]
+constraint_fixed.Scale = 1  # Ajustez l'échelle si nécessaire
+
+analysis = App.ActiveDocument.getObject('Analysis')
+analysis.addObject(constraint_fixed)
+
+
+App.ActiveDocument.recompute()
+
+#ajout des forces de contraintes : 
+piece = App.ActiveDocument.getObject('FinalPiece')
+
+constraint_force = App.ActiveDocument.addObject("Fem::ConstraintForce", "ConstraintForce")
+constraint_force.Force = 1.0  # Valeur de la force en Newtons
+constraint_force.Reversed = False
+constraint_force.Scale = 1
+constraint_force.References = [(piece, "Face26")]
+
+
+analysis = App.ActiveDocument.getObject('Analysis')
+analysis.addObject(constraint_force)
+
+
+App.ActiveDocument.recompute()
