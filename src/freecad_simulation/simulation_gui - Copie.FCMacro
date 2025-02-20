@@ -7,19 +7,16 @@ import ObjectsFem
 from femmesh.gmshtools import GmshTools as gt
 from femtools import ccxtools
 
-import os
-print(os.getcwd())
-workdir="C:/Users/oscar/Documents/MP/TIPE/Projet_remplissage/a-playground-for-oscar/src/freecad_simulation"
-os.chdir(workdir)
-sys.path.append(workdir)
-sys.path.append('c:/users/oscar/appdata/local/packages/pythonsoftwarefoundation.python.3.11_qbz5n2kfra8p0/localcache/local-packages/python311/site-packages')
-print(os.getcwd())
-print(os.listdir())
-print(sys.path)
 import matplotlib.pyplot as plt
 
+"""
+import netgen
+print(netgen.__version__)
+"""
+work_dir ="/home/makipoea/Documents/prepa/tipe/programme/a-playground-for-oscar/src/freecad_simulation" 
+os.chdir(work_dir)
+sys.path.append(work_dir)
 import generate_coutour
-
 importlib.reload(generate_coutour)
 
 from generate_coutour import compute_contour
@@ -105,10 +102,10 @@ def add_simulation():
     material = ObjectsFem.makeMaterialSolid(FreeCAD.ActiveDocument, "Material")
     
     material.Material = {
-        'Name': 'PLA-Generic',
-        'Density': '1240 kg/m^3',
-        'YoungsModulus': '3640 MPa',
-        'PoissonRatio': '0.36'
+        'Name': 'Steel-Generic',
+        'Density': '7850 kg/m^3',
+        'YoungsModulus': '210000 MPa',
+        'PoissonRatio': '0.3'
     }
     
     analysis.addObject(material)
