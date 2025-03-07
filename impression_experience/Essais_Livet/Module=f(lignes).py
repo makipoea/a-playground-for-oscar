@@ -6,6 +6,8 @@ import numpy as np
 
 fichiers = ["F3.csv","F4C.csv","F5A.csv","F6.csv","F7.csv","F8.csv","F9.csv","F15.csv"]
 
+
+
 Pentes=[]
 Nombre_ligne=[]
 
@@ -43,3 +45,4 @@ plt.scatter(Nombre_ligne,Pentes)
 plt.xlabel('Nombre de lignes')
 plt.ylabel('Module de Young en MPa')    
 plt.show()
+

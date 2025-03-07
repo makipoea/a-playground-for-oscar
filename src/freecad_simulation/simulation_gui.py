@@ -101,12 +101,23 @@ def add_simulation():
 
     material = ObjectsFem.makeMaterialSolid(FreeCAD.ActiveDocument, "Material")
     
+    
+    material.Material = {
+        'Name': 'Pla ou quoi ? ',
+        'Density': '1250 kg/m^3',
+        'YoungsModulus': '3640 MPa',
+        'PoissonRatio': '0.36'
+    }
+    
+    
+    """
     material.Material = {
         'Name': 'Steel-Generic',
         'Density': '7850 kg/m^3',
         'YoungsModulus': '210000 MPa',
         'PoissonRatio': '0.3'
     }
+    """
     
     analysis.addObject(material)
     
@@ -245,7 +256,9 @@ def extract_deplacement():
 #PRGM 
 #########################
 
-model = create_3D_model("eprouvette_1.png") # la valeur de infill height a été mise au pifométre
+#""
+
+model = create_3D_model("eprouvette_1.png", infill_height=10, bottom_height=0, top_height=0,  extrusion_thickness=0.5) # la valeur de infill height a été mise au pifométre
 
 analysis = add_simulation()
 compute_maillage(model)
@@ -255,8 +268,8 @@ traction_force = add_constraints(model, analysis,  1)
 fea = add_solveur()
 
 
-#l_charge = list(range(1, 10000, 100))
-l_charge = [10000]
+#l_charge = list(range(1, 10, 1))
+l_charge = [1000]
 
 l_deplacement_x = []
 
