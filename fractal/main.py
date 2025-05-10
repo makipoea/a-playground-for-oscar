@@ -153,7 +153,7 @@ class Fractal():
 class RenderFractal:
     def __init__(self, fractal):
         self.fractal = fractal
-        self.screen = py.display.set_mode((1800, 1000))
+        self.screen = py.display.set_mode((1300, 700))
         py.display.set_caption("Fractal Renderer")
         self.width, self.height = self.screen.get_size()
         self.screen.fill((0, 0, 0))
@@ -181,14 +181,14 @@ class RenderFractal:
 def koch_fractal():
 
     koch = Fractal()
-    koch.add_polyline(Polyline([(0, 0), (1800, 0)]))
+    koch.add_polyline(Polyline([(0, 0), (1300, 0)]))
     #fractaladd_polyline(Polyline([(0, 1000), (1800, 1000)])).add_polyline(Polyline([(0, 1000), (1800, 1000)]))
 
     # Ajout de transformations (SFIs)
     sfi1 = SFI(scale=1/3, rot=0, offset=np.array([[0], [0]]))
-    sfi2 = SFI(scale=1/3, rot=np.pi/3, offset=1800*np.array([[1/3], [0]]))
-    sfi3 = SFI(scale=1/3, rot=-np.pi / 3, offset=1800*np.array([[1/2], [np.sqrt(3)/6]]))
-    sfi4 = SFI(scale=1/3, rot=0, offset=1800*np.array([[2/3], [0]]))
+    sfi2 = SFI(scale=1/3, rot=np.pi/3, offset=1300*np.array([[1/3], [0]]))
+    sfi3 = SFI(scale=1/3, rot=-np.pi / 3, offset=1300*np.array([[1/2], [np.sqrt(3)/6]]))
+    sfi4 = SFI(scale=1/3, rot=0, offset=1300*np.array([[2/3], [0]]))
 
     #sfi2 = SFI(scale=0.5, rot=np.pi / 3, offset=np.array([[50], [50]]))
     koch.add_sfi(sfi1)
@@ -221,7 +221,7 @@ if __name__ == "__main__":
     # Initialisation des polylines et transformations
     
     # Rendu
-    renderer = RenderFractal(hilbert_fractal())
+    renderer = RenderFractal(koch_fractal())
     running = True
     while running:
         for event in py.event.get():
