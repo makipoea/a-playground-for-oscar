@@ -4,6 +4,9 @@ import matplotlib.pyplot as plt
 import random as rd
 
 
+import plotly.graph_objects as go
+import numpy as np
+
 
 def phi(x, y, parametre):
     """
@@ -65,7 +68,8 @@ def decompose(target_point, nb_polynome, degree):
 def contraintes(x, y):
     #return 3*x*y
     #return (x-0.5)*(y-0.5)
-    return (x-0.5)**2*y + 3*x*y
+    return np.sin(x*3)*np.cos(y*3)+1
+    #return (x-0.5)**2*y + 3*x*y
 
 
 
@@ -73,8 +77,8 @@ def main():
     
     nb_train_points = 10
     nb_results_points = 100
-    nb_polynome = 1
-    degree = 2
+    nb_polynome = 3
+    degree = 4
     
     x_contraintes = [] #;np.linspace(-1, 1, 10)
     y_contraintes = [] #np.linspace(-1, 1, 10)
@@ -107,6 +111,8 @@ def main():
 
     z_results = approx(x_results, y_results, p, nb_polynome)
 
+
+    
     fig = plt.figure()
     ax = fig.add_subplot(111, projection='3d')
 
@@ -119,7 +125,50 @@ def main():
     ax.set_zlabel('Z')
 
     plt.show()
-    
+    """
 
+    fig = go.Figure()
+
+# Ajouter les points des contraintes
+    fig.add_trace(go.Scatter3d(
+        x=x_contraintes,
+        y=y_contraintes,
+        z=z_contraintes,
+        mode='markers',
+        marker=dict(
+            size=5,
+            color='green',
+            opacity=0.8
+        ),
+        name='Contraintes'
+    ))
+
+    # Ajouter les points des résultats
+    fig.add_trace(go.Scatter3d(
+        x=x_results,
+        y=y_results,
+        z=z_results,
+        mode='markers',
+        marker=dict(
+            size=3,
+            color='red',
+            opacity=0.8
+        ),
+        name='Résultats'
+    ))
+
+    # Configurer les axes
+    fig.update_layout(
+        scene=dict(
+            xaxis_title='X',
+            yaxis_title='Y',
+            zaxis_title='Z'
+        ),
+        margin=dict(l=0, r=0, b=0, t=0)  # Réduire les marges
+    )
+
+    # Afficher la figure
+    fig.show()
+    """
 if __name__ == "__main__":
     main()

@@ -42,6 +42,7 @@ for i in range(len(fichiers)):
     print(Nombre_ligne, Pentes)
 
 plt.scatter(Nombre_ligne,Pentes)
+plt.title('Remplissage linéaire : évolution de E en fonction du nombre de lignes')
 plt.xlabel('Nombre de lignes')
 plt.ylabel('Module de Young en MPa')    
 plt.show()

@@ -1,23 +1,18 @@
 import os 
 import sys 
 import importlib
-import FreeCAD, Part, Draft
-import Fem
+import FreeCAD, FreeCADGui, Part, Draft
+import Fem , FemGui
 import ObjectsFem
 from femmesh.gmshtools import GmshTools as gt
 from femtools import ccxtools
 
 import matplotlib.pyplot as plt
 
-
 """
-USE : like any other regular python file but in FreeCAD --hidden --console
-
+import netgen
+print(netgen.__version__)
 """
-
-sys.argv.append("--hidden")
-#FreeCAD.setConstructorOptions("NoGui")
-
 work_dir ="/home/makipoea/Documents/prepa/tipe/programme/a-playground-for-oscar/src/freecad_simulation" 
 os.chdir(work_dir)
 sys.path.append(work_dir)
@@ -29,17 +24,14 @@ from generate_coutour import compute_contour
 ################################################################################
 #CREATION DU MODELE 3D# 
 ################################################################################
-App = FreeCAD
-
-doc = App.newDocument("simulation_mecanique")
-App.setActiveDocument("simulation_mecanique")
+doc = FreeCAD.newDocument("simulation mécanique")
 
 def create_3D_model(file_name, infill_height=20, bottom_height=0, top_height=0,  extrusion_thickness=0.5):
     """
     height : hauteur du remplissage de la touillette en mm
     extrusion_width : largeur de l'extrusion en mm (epaisseur du filament lors de l'extrusion )
     """
-    doc = App.getDocument("simulation_mecanique")
+    doc = App.ActiveDocument
     contours_extrusion = compute_contour(file_name, extrusion_thickness)
     
     # Liste pour stocker les formes des contours
@@ -97,13 +89,16 @@ def add_simulation():
     """
     add parameter for density oyung module etc 
     """
-    #FreeCADGui.activateWorkbench("FemWorkbench")
+    FreeCADGui.activateWorkbench("FemWorkbench")
     
     # Active l'analyse 
     analysis = ObjectsFem.makeAnalysis(FreeCAD.ActiveDocument, 'Analysis')
-    #analysis.Document.ActiveObject = analysis
-    #FemGui.setActiveAnalysis(analysis)
+    FemGui.setActiveAnalysis(analysis)
     
+    #solver = ObjectsFem.makeSolverCalculixCcxTools(doc)
+    #analysis.addObject(solver)
+    
+
     material = ObjectsFem.makeMaterialSolid(FreeCAD.ActiveDocument, "Material")
     
     material.Material = {
@@ -166,7 +161,7 @@ def add_constraints(piece, analysis, force):
 
 # Creation du maillage 
 
-def compute_maillage(piece, analysis):
+def compute_maillage(piece):
     femmesh_obj = ObjectsFem.makeMeshGmsh(doc, "FinalPiece_Mesh")
     femmesh_obj.Shape = piece#doc.piece_name  # Associer la géométrie
     
@@ -186,7 +181,7 @@ def compute_maillage(piece, analysis):
     analysis.addObject(femmesh_obj)
 
 
-def add_solveur(analysis):
+def add_solveur():
     # On lance la simulation   
     solver = ObjectsFem.makeSolverCalculiXCcxTools(doc)
     solver.AnalysisType = 0
@@ -219,7 +214,7 @@ def run_solveur(fea):
 # Analyse of the results 
 #fea.load_results()
 
-def extract_deplacement(analysis):
+def extract_deplacement():
     resultat = None
     for m in analysis.Group:
         if m.isDerivedFrom('Fem::FemResultObject'):
@@ -245,49 +240,32 @@ def extract_deplacement(analysis):
     #print(min_deplacement)
     #print(max_deplacement)
     return max_deplacement
-
-def ajouter_couples_fichier(liste1, liste2, fichier):
-    if len(liste1) != len(liste2):
-        raise ValueError("Les deux listes doivent avoir la même longueur.")
     
-    with open(fichier, "a", encoding="utf-8") as f:
-        for elem1, elem2 in zip(liste1, liste2):
-            f.write(f"{elem1}, {elem2}\n")
-        f.write("---\n")  # Ajout d'un séparateur
-
 #########################
 #PRGM 
 #########################
 
-def run():
-    model = create_3D_model("eprouvette_1.png", top_height=4, bottom_height=4, infill_height=20) # la valeur de infill height a été mise au pifométre
-    analysis = add_simulation()
-    compute_maillage(model, analysis)
+model = create_3D_model("eprouvette_1.png") # la valeur de infill height a été mise au pifométre
 
-    traction_force = add_constraints(model, analysis,  1)
+analysis = add_simulation()
+compute_maillage(model)
 
-    fea = add_solveur(analysis)
-    
-    l_charge = list(range(1, 1000000, 50000))
+traction_force = add_constraints(model, analysis,  1)
 
-    #l_charge = [10000]
-
-    l_deplacement_x = []
-
-    for i, c in enumerate(l_charge):
-        print("//////////////////////////////////////////////////////////////////////////////////")
-        print(i/len(l_charge)*100, "%")
-        print("//////////////////////////////////////////////////////////////////////////////////")
-        traction_force.Force = c*1000 # / ! \ la force est en milli Newtonne donc on la mulitplie par mille
-        run_solveur(fea)
-        l_deplacement_x.append(extract_deplacement(analysis)["x"])
+fea = add_solveur()
 
 
-    print(l_charge)
-    print(l_deplacement_x)
-    ajouter_couples_fichier(l_deplacement_x, l_charge, "result.txt")
-    plt.clf()
-    plt.scatter(l_deplacement_x, l_charge, s=1)
-    plt.show()
+#l_charge = list(range(1, 10000, 100))
+l_charge = [10000]
 
-    
+l_deplacement_x = []
+
+for c in l_charge:
+    traction_force.Force = c*1000 # / ! \ la force est en milli Newtonne donc on la mulitplie par mille
+    run_solveur(fea)
+    l_deplacement_x.append(extract_deplacement()["x"])
+
+
+plt.clf()
+plt.scatter(l_deplacement_x, l_charge)
+plt.show()

@@ -1,0 +1,1 @@
+print(["OA"+str(i)+".csv" for i in range(3, 8)])

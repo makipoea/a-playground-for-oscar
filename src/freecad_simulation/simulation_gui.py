@@ -7,16 +7,19 @@ import ObjectsFem
 from femmesh.gmshtools import GmshTools as gt
 from femtools import ccxtools
 
+import os
+print(os.getcwd())
+workdir="/home/makipoea/Documents/prepa/tipe/programme/a-playground-for-oscar/src/freecad_simulation"
+os.chdir(workdir)
+sys.path.append(workdir)
+sys.path.append(workdir)
+print(os.getcwd())
+print(os.listdir())
+print(sys.path)
 import matplotlib.pyplot as plt
 
-"""
-import netgen
-print(netgen.__version__)
-"""
-work_dir ="/home/makipoea/Documents/prepa/tipe/programme/a-playground-for-oscar/src/freecad_simulation" 
-os.chdir(work_dir)
-sys.path.append(work_dir)
 import generate_coutour
+
 importlib.reload(generate_coutour)
 
 from generate_coutour import compute_contour
@@ -112,10 +115,10 @@ def add_simulation():
     
     """
     material.Material = {
-        'Name': 'Steel-Generic',
-        'Density': '7850 kg/m^3',
-        'YoungsModulus': '210000 MPa',
-        'PoissonRatio': '0.3'
+        'Name': 'PLA-Generic',
+        'Density': '1240 kg/m^3',
+        'YoungsModulus': '3640 MPa',
+        'PoissonRatio': '0.36'
     }
     """
     
@@ -268,7 +271,7 @@ traction_force = add_constraints(model, analysis,  1)
 fea = add_solveur()
 
 
-#l_charge = list(range(1, 10, 1))
+#l_charge = list(range(10, 2000, 50))
 l_charge = [1000]
 
 l_deplacement_x = []
