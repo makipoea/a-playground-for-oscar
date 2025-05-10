@@ -1,0 +1,7 @@
+Bilan diapo :
+Ajouter du contexte
+Mettre l'image en 4/3
+Dire la problematique
+Changer le graphique avec tous les points 
+Expliciter le programme python
+Mettre le programme en annexe (en Arial sans espace)

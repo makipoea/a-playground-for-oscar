@@ -5,3 +5,6 @@ https://github.com/tubs-alg/lawn-mowing-from-algebra-to-algorithms/blob/main/tes
 https://www.univ-biskra.dz/enseignant/bensaada/RDM.pdf : quelques enseignements sur la résistance des matériaux (poutres torseurs de cohésion, hypothèses de la rdm)(definitions page 68 page 100 à 124)(definition du moment quadratique en debut de pdf)
 https://perso.univ-lyon1.fr/marc.buffat/COURS/LIVREEF_HTML/node5.html
 (ce cour porte sur les equations locales de la mecanique puis va petit a petit expliquer le comportement LOCAL d'une poutre soumis à la traction)
+
+Documentation pyvista :
+https://docs.pyvista.org/user-guide/what-is-a-mesh
