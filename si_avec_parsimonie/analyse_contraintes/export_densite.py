@@ -7,9 +7,9 @@ from sklearn.preprocessing import PolynomialFeatures
 from sklearn.linear_model import LinearRegression
 import sympy as sp
 
-def teste():
+def teste(filename="eprouvette.vtu"):
     # Charger le fichier VTU
-    mesh = pv.read('resultat.vtu')
+    mesh = pv.read(filename)
 
     ##Afficher les informations du maillage
     print(mesh)
@@ -31,7 +31,7 @@ def contraintes_to_densite(l_contrainte):
 
 def read_file(file):
     mesh = pv.read(file)
-    lcontrainte= mesh.point_data['Contrainte:Normale XX']
+    lcontrainte= mesh.point_data['Contrainte:von Mises']
     l_densite = contraintes_to_densite(lcontrainte)
     l_points = mesh.points.tolist()
     l_points = [tuple(point) for point in l_points] # pour pouvoir les passer en clé de dictionnaire 
@@ -41,7 +41,7 @@ def read_file(file):
 
 def compute_densite(file):
     mesh = pv.read(file)
-    lcontrainte= mesh.point_data['Contrainte:Normale XX']
+    lcontrainte= mesh.point_data['Contrainte:von Mises']
     l_densite = contraintes_to_densite(lcontrainte)
     l_points = mesh.points.tolist()
     l_points = [tuple(point) for point in l_points] # pour pouvoir les passer en clé de dictionnaire 
@@ -155,19 +155,82 @@ def polynomial_to_tensor(model, poly, var_names=['x', 'y', 'z']):
 
     return tab
 
-def save_polynme_as_json(tensor, filename):
+def save_polynme_as_json(tensor, l_points, filename):
     """
     tensor : polynome sous forme de tensseur 
     -> exporte le polynome pour que ce dernier soit accessible par le programme C++
     """
-    with open(filename, 'w') as f:
-        json.dump(tensor.tolist(), f)
+    x_coords = [p[0] for p in l_points]
+    y_coords = [p[1] for p in l_points]
+    min_x, max_x = min(x_coords), max(x_coords)
+    min_y, max_y = min(y_coords), max(y_coords)
 
+    
+    b_box = [[min_x, min_y], [max_x, min_y], [max_x, max_y], [min_x, max_y]]
+    print(b_box)
+    data = {
+        "tensor": tensor.tolist(),
+        "bbox": b_box
+    }
+
+    # Écriture dans le fichier JSON
+    with open(filename, 'w') as f:
+        json.dump(data, f, indent=2)
+
+def plot_polynomial_slices(model, poly, points, n_slices=5, grid_size=50):
+    """
+    Affiche des surfaces 3D de P(X, Y, Z=z) pour z équi-répartis sur la hauteur de la pièce.
+    
+    :param model: modèle sklearn entraîné (LinearRegression)
+    :param poly: objet PolynomialFeatures utilisé pour générer les termes
+    :param points: liste de tuples (x, y, z) des points d'origine
+    :param n_slices: nombre de tranches le long de Z
+    :param grid_size: résolution du maillage X-Y
+    """
+    # Extraction des bornes de la pièce
+    pts = np.array(points)
+    x_min, x_max = pts[:,0].min(), pts[:,0].max()
+    y_min, y_max = pts[:,1].min(), pts[:,1].max()
+    z_min, z_max = pts[:,2].min(), pts[:,2].max()
+    
+    # Valeurs de z à tracer
+    zs = np.linspace(z_min, z_max, n_slices)
+    
+    fig = plt.figure(figsize=(4 * n_slices, 4))
+    for idx, z in enumerate(zs, 1):
+        # Construction de la grille XY
+        xs = np.linspace(x_min, x_max, grid_size)
+        ys = np.linspace(y_min, y_max, grid_size)
+        X, Y = np.meshgrid(xs, ys)
+        
+        # Prépare les points pour la prédiction
+        XY_flat = np.column_stack([X.ravel(), Y.ravel(), np.full(X.size, z)])
+        XY_poly = poly.transform(XY_flat)
+        Z_pred = model.predict(XY_poly).reshape(X.shape)
+        
+        # Plot
+        ax = fig.add_subplot(1, n_slices, idx, projection='3d')
+        surf = ax.plot_surface(X, Y, Z_pred, cmap='viridis', edgecolor='none')
+        ax.set_title(f"Z = {z:.2f}")
+        ax.set_xlabel('X')
+        ax.set_ylabel('Y')
+        ax.set_zlabel('Density')
+        fig.colorbar(surf, ax=ax, shrink=0.5, aspect=10)
+    
+    plt.tight_layout()
+    plt.show()
 
 if __name__ == "__main__":
-    l_points, l_densite = read_file('resultat.vtu')
-    model, poly = compute_polynome(l_points, l_densite)
+    teste("tor.vtu")
+    l_points, l_densite = read_file('tor.vtu')
+    print(min(l_densite), max(l_densite))
+
+    model, poly = compute_polynome(l_points, l_densite, degree=5)
     feature_names = poly.get_feature_names_out(['x', 'y', 'z'])
     tableau_coeff = polynomial_to_tensor(model, poly)
-    save_polynme_as_json(tableau_coeff, "polynome_eprouvette.json")
-    #plot_predictions_3d(l_points, l_densite, model, poly, feature_names)
+    print(tableau_coeff)
+    print(tableau_coeff[1])
+    
+    save_polynme_as_json(tableau_coeff, l_points,"polynome.json")
+    plot_polynomial_slices(model, poly, l_points)
+    plot_predictions_3d(l_points, l_densite, model, poly, feature_names)
