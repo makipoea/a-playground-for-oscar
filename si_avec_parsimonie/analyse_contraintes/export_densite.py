@@ -15,10 +15,10 @@ def teste(filename="eprouvette.vtu"):
     print(mesh)
 
     ##affiche la maille en 3d avec un gradient de couleur pour representer la contrainte (un peu comme sur fusion)
-    mesh.plot(scalars='Contrainte:Normale XX',component=0, cmap='turbo', cpos='xy') 
+    mesh.plot(scalars='Contrainte:von Mises',component=0, cmap='turbo', cpos='xy') 
 
     ##Extraction de la contrainte sigmaXX
-    lXX= mesh.point_data['Contrainte:Normale XX']
+    lXX= mesh.point_data['Contrainte:von Mises']
     print(lXX)
 
     ##Extraction des coordonées des points 
@@ -34,7 +34,12 @@ def read_file(file):
     lcontrainte= mesh.point_data['Contrainte:von Mises']
     l_densite = contraintes_to_densite(lcontrainte)
     l_points = mesh.points.tolist()
+    l_points = np.array(l_points)
+    min_z = l_points[:, 2].min()
+    l_points[:, 2] -= min_z
+
     l_points = [tuple(point) for point in l_points] # pour pouvoir les passer en clé de dictionnaire 
+
 
     return l_points, l_densite
 
@@ -221,15 +226,16 @@ def plot_polynomial_slices(model, poly, points, n_slices=5, grid_size=50):
     plt.show()
 
 if __name__ == "__main__":
-    teste("tor.vtu")
-    l_points, l_densite = read_file('tor.vtu')
-    print(min(l_densite), max(l_densite))
+    filename = "losange.vtu"
+    teste(filename)
+    l_points, l_densite = read_file(filename)
+    #print(min(l_densite), max(l_densite))
 
     model, poly = compute_polynome(l_points, l_densite, degree=5)
     feature_names = poly.get_feature_names_out(['x', 'y', 'z'])
     tableau_coeff = polynomial_to_tensor(model, poly)
-    print(tableau_coeff)
-    print(tableau_coeff[1])
+    #print(tableau_coeff)
+    #print(tableau_coeff[1])
     
     save_polynme_as_json(tableau_coeff, l_points,"polynome.json")
     plot_polynomial_slices(model, poly, l_points)
