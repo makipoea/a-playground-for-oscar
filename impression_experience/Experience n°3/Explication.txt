@@ -1,0 +1,43 @@
+Explication :
+
+Cette expérience a pour but de déterminer si le remplissage que nous avons implémenter permet bel en bien d'améliorer la resistance de la piece.
+
+Principe du remplissage : Il se base sur une analyse s'inspirant de l'optimisation topologique. Elle consiste à retirer de la matière la où il n'y en a pas besoin. 
+En resistance des matériaux il existe plusieurs critere pour savoir si la piece est proche de la rupture ou non. Un de ces critères est le critère de Von Misses. Il s'appuie sur le fait que la resistance a la contrainte est la plus faible pour le cisaillement que l'on peut determiner a partir des contraintes uniaxiales. Ainsi on crée une contrainte appelé contrainte de Von Misses qui ne doit pas dépasser une valeur maximale. 
+Ainsi la piece que l'on souhaite remplir est d'abord testée par simulation qui exporte la carte des contraintes de von Misses. Ensuite un remplissage adaptatif est appliqué selon la logique suivante : plus il y a de contrainte plus la densité doit être localement forte. En effet plus de densité signifie surface remplie plus importante et donc contrainte moins importante. Pour plus de precision sur la méthode de remplissage voir https://github.com/makipoea/Slic3r_but_with_better_infill.
+
+Principe de l'experience : 
+
+Pour chaque piece nous allons : 
+-mesurer sa masse
+-Faire des points a sa surface au fluo pour déterminer le champs de déplacement
+-Faire l'essai de traction en monitorant Force elongation tout en filmant la piece pour avoir le champs de deformation.
+
+Données initiale :
+
+-estimation de la masse de la piece par le slicer.
+-type de remplissage utilisé (Capture d'écran du slicer)
+-Dimensions de la piece
+-fichier code d'impression gcode
+-modele 3D (stl)
+-Carte de contrainte (vtu)
+
+Données attendues dans les résultats de l'experience :
+
+Comportement global de la piece :
+-Module de Young (apparent cad si l'on considere la piece en entier)
+-Force à la rupture
+-Elongation à la rupture
+
+Comportement local :
+-Champs de déformation (en partie par les points au fluos)
+-On en deduit le champs de contrainte (il suffit de connaitre module de Young et coefficient de Poisson du PLA)
+
+Exploitation des données initiales :
+
+Comme le principe est de comparer notre remplissage à un remplissage standard (nous avons pris le remplissage grille (grid) très couramment utilisé), nous avons imprimés des pieces de masse proche avec les deux remplissage. Ainsi dans les dossiers vous verres file_variableN avec N un entier qui signifie type de piece (file) type de remplissage (variable : custom , constante : grid) N definie la densité type du remplissage custom. Ainsi file_variableN et file_constanteN sont les deux pieces à comparer. 
+
+Vous pouvez regarder la carte de contrainte grace au programme analyse_contrainte.py
+Pour plus de fonctionnalité lié au remplissage voir /a-playground-for-oscar/si-avec-parsimonie/analyse_contrainte
+
+Les Pieces : Un tore plat , Une eprouvette standart , Un modele croisé que je ne saurais vous decrire en un mot (voir /Modeles/Croise.stl).
