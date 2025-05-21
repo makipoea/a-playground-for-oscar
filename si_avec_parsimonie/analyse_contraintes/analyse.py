@@ -67,7 +67,12 @@ def densite_coupe(file,zo,dmin,dmax,fct): #Genere le trio (liste abscisse, liste
 
 
 data= densite_coupe('resultat.vtu',4,0,1,affine)
+
+
+
 points=[[data[0][i],data[1][i],0] for i in range(len(data[0]))]
+
+
 mesh= pv.PolyData(points)
 mesh.point_data['density']= data[2]
 mesh.plot(scalars='density',component=0, cmap='coolwarm', cpos='xy')
