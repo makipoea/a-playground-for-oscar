@@ -1,0 +1,2 @@
+constant1;constant2;constant3;variable
+10.38;10.35;10.30;10.45

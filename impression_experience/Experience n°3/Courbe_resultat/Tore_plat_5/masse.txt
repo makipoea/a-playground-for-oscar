@@ -1,0 +1,2 @@
+constant;variable
+57.73;42.13
